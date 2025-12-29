@@ -1,0 +1,91 @@
+/* KHUNG CHỨA GIỎ HÀNG */
+.cart-container {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    margin-top: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.page-title {
+    color: #1a1a2e;
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    border-bottom: 3px solid #f1f5f9;
+    padding-bottom: 10px;
+}
+
+/* BẢNG SẢN PHẨM */
+.cart-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.cart-table th {
+    background: #f8fafc;
+    text-align: left;
+    padding: 15px;
+    color: #475569;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.cart-table td {
+    padding: 20px 15px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+/* ĐIỀU KHIỂN SỐ LƯỢNG */
+.quantity-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+}
+
+.qty-btn {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #cbd5e0;
+    background: white;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.qty-btn:hover {
+    background: #1a1a2e;
+    color: white;
+}
+
+/* TỔNG TIỀN & THÔNG TIN THANH TOÁN */
+.total-row {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #e53e3e;
+    text-align: right;
+    margin: 20px 0;
+}
+
+.btn-checkout-final {
+    background: #38a169;
+    color: white;
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-checkout-final:hover {
+    background: #2f855a;
+    transform: translateY(-2px);
+}
+
+.btn-delete {
+    color: #e53e3e;
+    text-decoration: none;
+    font-size: 1.1rem;
+}

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Sản phẩm</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --danger: #ef4444;
+            --success: #10b981;
+        }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; margin: 0; }
+        .main-header { background: #1e1b4b; color: white; padding: 15px 0; margin-bottom: 30px; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+        /* Bảng */
+        .card-table { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); overflow: hidden; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { background: #f1f5f9; color: #64748b; padding: 15px; font-size: 13px; text-transform: uppercase; }
+        .data-table td { padding: 15px; border-bottom: 1px solid #f1f5f9; }
+
+        /* Nút bấm */
+        .btn-add { background: var(--primary); color: white; padding: 10px 18px; border-radius: 8px; text-decoration: none; font-weight: 500; display: inline-block; transition: 0.3s; }
+        .btn-add:hover { background: #4338ca; transform: translateY(-2px); }
+
+        .btn-action { padding: 7px 12px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; }
+        .btn-edit { background: #eef2ff; color: var(--primary); }
+        .btn-edit:hover { background: var(--primary); color: white; }
+
+        .btn-delete { background: #fef2f2; color: var(--danger); margin-left: 5px; }
+        .btn-delete:hover { background: var(--danger); color: white; }
+
+        .badge { background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<header class="main-header">
+    <div class="container">
+        <h2 style="margin:0;"><i class="fas fa-th-list"></i> Hệ thống Quản trị</h2>
+    </div>
+</header>
+
+<div class="container">
+    <a th:href="@{/admin}" class="back-link"><i class="fas fa-arrow-left"></i> Quay lại Dashboard</a>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <h1 style="margin:0; font-size: 26px;">📦 Quản lý Sản phẩm</h1>
+        <a th:href="@{/admin/product/create}" class="btn-add">
+            <i class="fas fa-plus"></i> Thêm sản phẩm mới
+        </a>
+    </div>
+
+    <div class="card-table">
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th width="70">ID</th>
+                <th>Sản phẩm</th>
+                <th>Giá bán</th>
+                <th>Danh mục</th>
+                <th style="text-align: center;">Hành động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="p : ${products}">
+                <td th:text="'#' + ${p.maSP}" style="color: #94a3b8; font-weight: 600;"></td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <img th:src="@{'/uploads/' + ${p.hinhAnh}}" width="48" height="48" style="border-radius: 8px; object-fit: cover; border: 1px solid #eee;">
+                        <span th:text="${p.tenSP}" style="font-weight: 600;"></span>
+                    </div>
+                </td>
+                <td>
+                    <b style="color: var(--success);" th:text="${#numbers.formatInteger(p.gia, 0, 'POINT')} + ' ₫'"></b>
+                </td>
+                <td>
+                    <span class="badge" th:text="${p.danhMuc?.tenDMSP}"></span>
+                </td>
+                <td style="text-align: center;">
+                    <a th:href="@{/admin/product/edit/{id}(id=${p.maSP})}" class="btn-action btn-edit">
+                        <i class="fas fa-pen-to-square"></i> Sửa
+                    </a>
+                    <a th:href="@{/admin/product/delete/{id}(id=${p.maSP})}" class="btn-action btn-delete" onclick="return confirm('Xác nhận xóa?')">
+                        <i class="fas fa-trash"></i> Xóa
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

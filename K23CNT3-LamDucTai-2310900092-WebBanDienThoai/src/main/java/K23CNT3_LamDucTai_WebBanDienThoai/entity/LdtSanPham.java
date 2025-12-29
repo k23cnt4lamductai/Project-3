@@ -30,4 +30,8 @@ public class LdtSanPham {
     @ManyToOne
     @JoinColumn(name = "MaDMSP")
     private LdtDanhMucSP danhMuc;
+
+    @Column(name = "MoTa", columnDefinition = "TEXT")
+    private String moTa;
+
 }

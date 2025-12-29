@@ -3,37 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <title>Quản lý danh mục</title>
-    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #4f46e5; --danger: #ef4444; --bg: #f8fafc; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: #1e293b; }
+        .main-header { background: #1e1b4b; color: white; padding: 15px 0; margin-bottom: 30px; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+
+        .back-link { text-decoration: none; color: var(--primary); font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 15px; transition: 0.2s; }
+        .back-link:hover { color: #4338ca; transform: translateX(-3px); }
+
+        .card-table { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); overflow: hidden; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { background: #f1f5f9; color: #64748b; padding: 15px; text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .data-table td { padding: 16px 15px; border-bottom: 1px solid #f1f5f9; font-size: 15px; }
+        .data-table tr:hover { background: #f8fafc; }
+
+        .btn-add { background: #10b981; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2); }
+        .btn-add:hover { background: #059669; transform: translateY(-2px); }
+
+        .btn-action { padding: 6px 12px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-edit { background: #eef2ff; color: var(--primary); }
+        .btn-edit:hover { background: var(--primary); color: white; }
+        .btn-delete { background: #fef2f2; color: var(--danger); margin-left: 5px; }
+        .btn-delete:hover { background: var(--danger); color: white; }
+    </style>
 </head>
 <body>
 
-<h2>Danh sách danh mục sản phẩm</h2>
+<header class="main-header">
+    <div class="container"><h2 style="margin:0;"><i class="fas fa-layer-group"></i> Danh Sách Sản Phẩm </h2></div>
+</header>
 
-<a th:href="@{/admin/danhmuc/add}" class="btn btn-primary">+ Thêm danh mục</a>
+<div class="container">
+    <a th:href="@{/admin}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Quay lại Dashboard
+    </a>
 
-<table border="1" cellpadding="8" cellspacing="0">
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Tên danh mục</th>
-        <th>Mô tả</th>
-        <th>Hành động</th>
-    </tr>
-    </thead>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <h1 style="margin:0; font-size: 26px; font-weight: 800;">📂 Danh mục sản phẩm</h1>
+        <a th:href="@{/admin/danhmuc/create}" class="btn-add">
+            <i class="fas fa-plus"></i> Thêm danh mục
+        </a>
+    </div>
 
-    <tbody>
-    <tr th:each="dms : ${dsDanhMuc}">
-        <td th:text="${dms.maDMSP}"></td>
-        <td th:text="${dms.tenDMSP}"></td>
-        <td th:text="${dms.moTa}"></td>
-        <td>
-            <a th:href="@{'/admin/danhmuc/edit/' + ${dms.maDMSP}}">Sửa</a> |
-            <a th:href="@{'/admin/danhmuc/delete/' + ${dms.maDMSP}}"
-               onclick="return confirm('Xóa danh mục này?')">Xóa</a>
-        </td>
-    </tr>
-    </tbody>
-</table>
+    <div class="card-table">
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th width="80" style="text-align: center;">ID</th>
+                <th>Tên danh mục</th>
+                <th>Mô tả</th>
+                <th width="180" style="text-align: center;">Hành động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="dm : ${dms}">
+                <td th:text="'#' + ${dm.maDMSP}" style="text-align: center; font-weight: 700; color: #94a3b8;"></td>
+                <td><strong th:text="${dm.tenDMSP}" style="color: #1e293b;"></strong></td>
+                <td th:text="${dm.moTa != null && dm.moTa != '' ? dm.moTa : '---'}" style="color: #64748b; font-size: 14px;"></td>
+                <td style="text-align: center;">
+                    <a th:href="@{/admin/danhmuc/edit/{id}(id=${dm.maDMSP})}" class="btn-action btn-edit">
+                        <i class="fas fa-pen-to-square"></i> Sửa
+                    </a>
+                    <a th:href="@{/admin/danhmuc/delete/{id}(id=${dm.maDMSP})}" class="btn-action btn-delete"
+                       onclick="return confirm('Xác nhận xóa danh mục này?')">
+                        <i class="fas fa-trash"></i> Xóa
+                    </a>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(dms)}">
+                <td colspan="4" style="text-align: center; padding: 40px; color: #94a3b8;">
+                    <i class="fas fa-inbox" style="font-size: 30px; display: block; margin-bottom: 10px;"></i>
+                    Chưa có dữ liệu danh mục nào được tạo.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 
 </body>
 </html>

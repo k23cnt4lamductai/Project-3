@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chỉnh sửa khách hàng</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #4e73df; --bg: #f1f5f9; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: #1e293b; }
+        .main-header { background: #1e1b4b; color: white; padding: 15px 0; }
+        .container { max-width: 850px; margin: 40px auto; padding: 0 20px; }
+
+        .edit-card { background: white; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); overflow: hidden; }
+        .card-header-custom { background: var(--primary); color: white; padding: 25px 35px; display: flex; align-items: center; justify-content: space-between; }
+        .card-body-custom { padding: 40px; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        .ldt-form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+        .ldt-form-group.full { grid-column: span 2; }
+
+        label { font-weight: 600; font-size: 14px; color: #475569; }
+        input { padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 15px; outline: none; transition: 0.3s; background: #f8fafc; }
+        input:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px rgba(78,115,223,0.1); }
+        .readonly-bg { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
+
+        .btn-save-modern { background: #1cc88a; color: white; border: none; padding: 15px 40px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 10px; font-size: 16px; }
+        .btn-save-modern:hover { background: #17a673; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(28, 200, 138, 0.3); }
+
+        .btn-back { color: white; text-decoration: none; font-size: 14px; border: 1px solid rgba(255,255,255,0.3); padding: 8px 15px; border-radius: 20px; transition: 0.3s; }
+        .btn-back:hover { background: white; color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<header class="main-header">
+    <div class="container" style="margin: 0 auto;"><h2 style="margin:0;"><i class="fas fa-desktop"></i> Chỉnh Sửa Thông Tin </h2></div>
+</header>
+
+<div class="container">
+    <div class="edit-card">
+        <div class="card-header-custom">
+            <div>
+                <h2 style="margin:0; font-size: 20px;"><i class="fas fa-user-pen"></i> Chỉnh sửa thông tin</h2>
+                <small style="opacity: 0.8;">Mã khách hàng: #[[${khachHang.maKH}]]</small>
+            </div>
+            <a th:href="@{/admin/khach-hang}" class="btn-back">
+                <i class="fas fa-chevron-left"></i> Quay lại danh sách
+            </a>
+        </div>
+
+        <div class="card-body-custom">
+            <form th:action="@{/admin/khach-hang/update/{id}(id=${khachHang.maKH})}" th:object="${khachHang}" method="post">
+
+                <input type="hidden" th:field="*{maKH}">
+                <input type="hidden" th:field="*{password}">
+
+                <div class="form-grid">
+                    <div class="ldt-form-group">
+                        <label><i class="fas fa-user"></i> Họ và Tên</label>
+                        <input type="text" th:field="*{hoTen}" required placeholder="Họ tên khách hàng">
+                    </div>
+
+                    <div class="ldt-form-group">
+                        <label><i class="fas fa-phone"></i> Số điện thoại</label>
+                        <input type="text" th:field="*{sdt}" required placeholder="Ví dụ: 0987xxxxxx">
+                    </div>
+
+                    <div class="ldt-form-group">
+                        <label><i class="fas fa-envelope"></i> Email liên hệ</label>
+                        <input type="email" th:field="*{email}" placeholder="example@mail.com">
+                    </div>
+
+                    <div class="ldt-form-group">
+                        <label><i class="fas fa-id-badge"></i> Tên đăng nhập (Username)</label>
+                        <input type="text" th:field="*{username}" class="readonly-bg" readonly>
+                    </div>
+
+                    <div class="ldt-form-group full">
+                        <label><i class="fas fa-location-dot"></i> Địa chỉ thường trú</label>
+                        <input type="text" th:field="*{diaChi}" placeholder="Số nhà, tên đường, khu vực...">
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; border-top: 1px solid #f1f5f9; padding-top: 30px; display: flex; justify-content: flex-end;">
+                    <button type="submit" class="btn-save-modern">
+                        <i class="fas fa-cloud-arrow-up"></i> Lưu thay đổi ngay
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

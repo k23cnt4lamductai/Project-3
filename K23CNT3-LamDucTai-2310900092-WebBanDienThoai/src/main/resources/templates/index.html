@@ -2,30 +2,292 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Shop Điện thoại</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile City - Điện thoại chính hãng</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/main.css}">
+    <style>
+        /* CSS bổ sung để tối ưu giao diện theo yêu cầu */
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary) 0%, #334155 100%);
+            color: white;
+            padding: 80px 0;
+        }
+        .hero-container {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+        .btn-buy-now {
+            background: var(--accent);
+            color: white;
+            padding: 14px 35px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-block;
+            transition: 0.3s;
+            border: none;
+        }
+        .btn-buy-now:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+            filter: brightness(1.1);
+        }
+        .product-card {
+            background: white;
+            padding: 25px;
+            border-radius: 18px;
+            transition: 0.4s;
+            border: 1px solid var(--border);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            border-color: var(--accent);
+        }
+        .product-card img {
+            height: 180px;
+            object-fit: contain;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+        .product-card:hover img {
+            transform: scale(1.05);
+        }
+        .btn-add-cart {
+            background: var(--primary);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-add-cart:hover {
+            background: var(--accent);
+        }
+
+        /* Footer Styles */
+        .main-footer {
+            background: var(--primary);
+            color: #94a3b8;
+            padding: 70px 0 30px;
+            margin-top: 80px;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1fr;
+            gap: 40px;
+        }
+        .footer-column h4 {
+            color: white;
+            font-size: 18px;
+            margin-bottom: 25px;
+            position: relative;
+        }
+        .footer-column h4::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -8px;
+            width: 40px;
+            height: 2px;
+            background: var(--accent);
+        }
+        .footer-links {
+            list-style: none;
+            padding: 0;
+        }
+        .footer-links li {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        .footer-links a:hover {
+            color: white;
+            transform: translateX(5px);
+        }
+        .social-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        .social-item {
+            width: 40px;
+            height: 40px;
+            background: #334155;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            transition: 0.3s;
+            text-decoration: none;
+        }
+        .social-item.fb:hover { background: #1877f2; }
+        .social-item.yt:hover { background: #ff0000; }
+        .social-item.tk:hover { background: #000000; }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid #334155;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
-<header>
-    <h1>Shop Điện thoại</h1>
-    <nav>
-        <a th:href="@{/}">Trang chủ</a> |
-        <a th:href="@{/products}">Sản phẩm</a> |
-        <a th:href="@{/cart}">Giỏ hàng</a> |
-        <a th:href="@{/admin/login}">Admin</a>
-    </nav>
+
+<div th:if="${param.success}"
+     style="position: fixed; top: 20px; right: 20px; z-index: 9999; background: var(--success); color: white; padding: 16px 24px; border-radius: 12px; box-shadow: 0 10px 25px rgba(5,150,105,0.3); animation: slideIn 0.5s ease;">
+    <i class="fas fa-check-circle"></i> Đặt hàng thành công! Chúng tôi sẽ liên hệ sớm.
+</div>
+
+<header class="main-header">
+    <div class="header-container container">
+        <div class="logo-area">
+            <h1><a th:href="@{/}"><i class="fas fa-mobile-alt"></i> Mobile City</a></h1>
+        </div>
+
+        <nav class="main-nav">
+            <a th:href="@{/}" class="nav-link active"><i class="fas fa-home"></i> Trang chủ</a>
+            <a th:href="@{/products}" class="nav-link"><i class="fas fa-box"></i> Sản phẩm</a>
+            <a th:href="@{/cart}" class="nav-link"><i class="fas fa-shopping-cart"></i> Giỏ hàng</a>
+
+            <th:block th:if="${session.USER_SESSION != null}">
+                <span class="nav-link" style="color: #f6ad55; font-weight: bold;">
+                    <i class="fas fa-user-circle"></i> <span th:text="${session.USER_SESSION.hoTen}"></span>
+                </span>
+                <a th:href="@{/user/logout}" class="nav-link" style="color: var(--danger);">[Thoát]</a>
+            </th:block>
+
+            <th:block th:if="${session.USER_SESSION == null}">
+                <a th:href="@{/user/login}" class="nav-link">Đăng nhập</a>
+                <a th:href="@{/user/register}" class="nav-link">Đăng ký</a>
+            </th:block>
+        </nav>
+    </div>
 </header>
 
-<section>
-    <h2>Sản phẩm nổi bật</h2>
-    <div th:each="p: ${products}" style="display:inline-block;margin:8px">
-        <a th:href="@{/products/{id}(id=${p.maSP})}">
-            <img th:src="@{'/uploads/' + ${p.hinhAnh}}" style="width:150px;height:150px"/>
-            <div th:text="${p.tenSP}"></div>
-            <!-- SỬA: Dùng cách đơn giản -->
-            <div th:text="${#numbers.formatCurrency(p.gia)}"></div>
-        </a>
+<section class="hero-section">
+    <div class="container hero-container">
+        <div style="flex: 1.2;">
+            <h2 style="font-size: 3.5rem; line-height: 1.1; margin-bottom: 25px; font-weight: 800;">
+                Flagship Chính Hãng <br><span style="color: var(--accent);">Ưu Đãi Sốc 2025</span>
+            </h2>
+            <p style="font-size: 1.2rem; opacity: 0.9; margin-bottom: 35px; max-width: 500px;">
+                Trải nghiệm công nghệ đỉnh cao với mức giá tốt nhất thị trường. Bảo hành 12 tháng, 1 đổi 1 trong 30 ngày.
+            </p>
+            <a th:href="@{/products}" class="btn-buy-now">MUA NGAY HÔM NAY</a>
+        </div>
+        <div style="flex: 0.8; text-align: center;">
+            <img src="https://img.freepik.com/free-vector/modern-smartphones-with-empty-screens-white-background_1284-18404.jpg"
+                 alt="Banner" style="max-width: 110%; filter: drop-shadow(0 20px 50px rgba(0,0,0,0.3));">
+        </div>
     </div>
 </section>
+
+<section class="featured-section container">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px;">
+        <div>
+            <h2 style="font-size: 2rem; color: var(--primary); font-weight: 700;">Sản phẩm nổi bật</h2>
+            <div style="width: 60px; height: 4px; background: var(--accent); border-radius: 2px; margin-top: 10px;"></div>
+        </div>
+        <a th:href="@{/products}" style="color: var(--accent); text-decoration: none; font-weight: 600;">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+    </div>
+
+    <div class="product-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 30px;">
+        <div th:each="p : ${products}" class="product-card">
+            <div class="badge" style="width: fit-content; margin-bottom: 10px;">Trả góp 0%</div>
+            <img th:src="@{'/uploads/' + ${p.hinhAnh}}" onerror="this.src='https://via.placeholder.com/200x200?text=Mobile+City'">
+            <h4 th:text="${p.tenSP}" style="font-size: 1.1rem; margin: 15px 0 10px; height: 44px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;"></h4>
+            <p th:text="${#numbers.formatInteger(p.gia, 0, 'COMMA')} + '₫'" class="price" style="font-size: 1.3rem; margin-bottom: 20px;"></p>
+
+            <div style="display: flex; gap: 10px;">
+                <a th:href="@{/products/{id}(id=${p.maSP})}" class="action edit" style="flex: 1; text-align: center; background: #f1f5f9; padding: 10px; border-radius: 8px; font-size: 14px;">Chi tiết</a>
+                <button class="btn-add-cart" th:onclick="'addToCart(' + ${p.maSP} + ')'" style="flex: 1.5;">
+                    <i class="fas fa-cart-plus"></i> Thêm giỏ
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="main-footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-column">
+                <h4>MOBILE CITY</h4>
+                <p style="line-height: 1.7; margin-bottom: 20px;">Hệ thống bán lẻ điện thoại di động chính hãng uy tín nhất Việt Nam. Cam kết chất lượng dịch vụ và giá cả tốt nhất.</p>
+                <div class="social-group">
+                    <a href="https://facebook.com" class="social-item fb" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://youtube.com" class="social-item yt" target="_blank"><i class="fab fa-youtube"></i></a>
+                    <a href="https://tiktok.com" class="social-item tk" target="_blank"><i class="fab fa-tiktok"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-column">
+                <h4>CHÍNH SÁCH</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Chính sách bảo hành</a></li>
+                    <li><a href="#">Chính sách đổi trả</a></li>
+                    <li><a href="#">Chính sách vận chuyển</a></li>
+                    <li><a href="#">Hướng dẫn trả góp</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h4>LIÊN HỆ</h4>
+                <ul class="footer-links">
+                    <li><i class="fas fa-phone-alt"></i> Hotline: 1900 6601</li>
+                    <li><i class="fas fa-envelope"></i> contact@mobilecity.vn</li>
+                    <li><i class="fas fa-clock"></i> 08:00 - 22:00 (T2 - CN)</li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h4>HỆ THỐNG CỬA HÀNG</h4>
+                <ul class="footer-links">
+                    <li><i class="fas fa-map-marker-alt"></i> 123 Cầu Giấy, Hà Nội</li>
+                    <li><i class="fas fa-map-marker-alt"></i> 456 Lê Hồng Phong, Q10, HCM</li>
+                    <li><i class="fas fa-map-marker-alt"></i> 789 Hàm Nghi, Đà Nẵng</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2025 Mobile City. Tất cả các quyền được bảo lưu. Thiết kế bởi SpringTeam.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    function addToCart(productId) {
+        fetch('/cart/add/' + productId, { method: 'POST' })
+            .then(res => {
+                if(res.ok) {
+                    // Thêm thông báo mini thay vì alert
+                    alert('✅ Đã thêm vào giỏ hàng thành công!');
+                } else {
+                    alert('⚠️ Vui lòng đăng nhập để thực hiện tính năng này');
+                }
+            })
+            .catch(() => alert('❌ Có lỗi xảy ra, vui lòng thử lại sau'));
+    }
+</script>
 </body>
 </html>

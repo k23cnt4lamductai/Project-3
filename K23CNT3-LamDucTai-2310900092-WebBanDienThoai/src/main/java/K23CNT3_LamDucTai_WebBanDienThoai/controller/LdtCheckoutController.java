@@ -20,13 +20,20 @@ public class LdtCheckoutController {
     @Autowired private LdtSanPhamRepository spRepo;
 
     @PostMapping
-    public String checkout(@RequestParam Integer customerId, HttpSession session){
+    public String checkout(HttpSession session){
+        // 1. Lấy giỏ hàng từ session
         Map<Integer,Integer> cart = (Map<Integer,Integer>) session.getAttribute("CART");
         if(cart==null || cart.isEmpty()) return "redirect:/cart";
 
-        LdtKhachHang kh = khRepo.findById(customerId).orElse(null);
-        if(kh==null) return "redirect:/cart";
+        // 2. Lấy thông tin khách hàng từ session (Thay vì dùng @RequestParam)
+        LdtKhachHang userSession = (LdtKhachHang) session.getAttribute("USER_SESSION");
+        if(userSession == null) return "redirect:/user/login";
 
+        // Tìm lại khách hàng trong DB để đảm bảo dữ liệu mới nhất
+        LdtKhachHang kh = khRepo.findById(userSession.getMaKH()).orElse(null);
+        if(kh == null) return "redirect:/cart";
+
+        // 3. Tạo hóa đơn mới
         LdtHoaDon hd = new LdtHoaDon();
         hd.setKhachHang(kh);
         hd.setNgayLap(Date.valueOf(LocalDate.now()));
@@ -34,22 +41,29 @@ public class LdtCheckoutController {
         hd = hdRepo.save(hd);
 
         double total = 0;
+        // 4. Lưu chi tiết hóa đơn
         for(Map.Entry<Integer,Integer> e : cart.entrySet()){
             LdtSanPham sp = spRepo.findById(e.getKey()).orElse(null);
-            if(sp==null) continue;
+            if(sp == null) continue;
+
             int qty = e.getValue();
             double price = sp.getGia();
+
             LdtChiTietHoaDon ct = new LdtChiTietHoaDon();
             ct.setHoaDon(hd);
             ct.setSanPham(sp);
             ct.setSoLuong(qty);
             ct.setDonGia(price);
             cthdRepo.save(ct);
+
             total += price * qty;
         }
+
+        // 5. Cập nhật tổng tiền cuối cùng
         hd.setTongTien(total);
         hdRepo.save(hd);
 
+        // 6. Xóa giỏ hàng sau khi đặt thành công
         session.removeAttribute("CART");
         return "redirect:/?success";
     }

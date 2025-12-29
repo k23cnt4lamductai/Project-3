@@ -8,39 +8,46 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
 
 @Controller
-@RequestMapping("/admin/categories")
+@RequestMapping("/admin/danhmuc")
 public class LdtAdminDanhMucController {
 
     @Autowired
     private LdtDanhMucSPRepository repo;
 
+    // Hiển thị danh sách danh mục
     @GetMapping
     public String list(Model model){
         model.addAttribute("dms", repo.findAll());
         return "admin/danhmuc/list";
     }
 
+    // Hiển thị form thêm mới
     @GetMapping("/create")
     public String createForm(Model model){
-        model.addAttribute("dm", new LdtDanhMucSP());
+        // Sử dụng "dms" để khớp với th:object="${dms}" trong form.html
+        model.addAttribute("dms", new LdtDanhMucSP());
         return "admin/danhmuc/form";
     }
 
+    // Lưu dữ liệu (Thêm hoặc Cập nhật)
     @PostMapping("/save")
-    public String save(@ModelAttribute LdtDanhMucSP dm){
+    public String save(@ModelAttribute("dms") LdtDanhMucSP dm){
         repo.save(dm);
-        return "redirect:/admin/categories";
+        return "redirect:/admin/danhmuc";
     }
 
+    // Hiển thị form chỉnh sửa
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable Integer id, Model model){
-        model.addAttribute("dm", repo.findById(id).orElse(new LdtDanhMucSP()));
+        // Sử dụng "dms" để khớp với logic trong form.html
+        model.addAttribute("dms", repo.findById(id).orElse(new LdtDanhMucSP()));
         return "admin/danhmuc/form";
     }
 
+    // Xóa danh mục
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Integer id){
         repo.deleteById(id);
-        return "redirect:/admin/categories";
+        return "redirect:/admin/danhmuc";
     }
 }

@@ -1,23 +1,302 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><title>Giỏ hàng</title></head>
-<body>
-<h1>Giỏ hàng</h1>
-<div th:if="${items.size()==0}">Giỏ hàng trống</div>
-<table th:if="${items.size()>0}">
-    <tr><th>Sản phẩm</th><th>Số lượng</th><th>Giá</th><th></th></tr>
-    <tr th:each="p : ${items}">
-        <td th:text="${p.tenSP}"></td>
-        <td th:text="${cartMap[p.maSP]}"></td>
-        <!-- SỬA: Dùng format đơn giản -->
-        <td th:text="${#numbers.formatCurrency(p.gia)}"></td>
-        <td><a th:href="@{/cart/remove/{id}(id=${p.maSP})}">Xóa</a></td>
-    </tr>
-</table>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ hàng - Mobile City</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <style>
+        /* Tối ưu riêng cho trang giỏ hàng dựa trên main.css của bạn */
+        .cart-container {
+            background: white;
+            padding: 40px;
+            border-radius: 18px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            margin-top: 30px;
+        }
 
-<form th:action="@{/checkout}" method="post">
-    <label>Khách hàng id (ví dụ 1): <input name="customerId" /></label>
-    <button type="submit">Thanh toán</button>
-</form>
+        .page-title {
+            font-size: 24px;
+            color: var(--primary);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Custom bảng giỏ hàng */
+        .cart-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .cart-table th {
+            text-align: left;
+            padding: 15px;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 13px;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .cart-table td {
+            padding: 20px 15px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            background: #f1f5f9;
+            width: fit-content;
+            border-radius: 8px;
+            padding: 5px;
+        }
+
+        .qty-btn {
+            background: white;
+            border: 1px solid var(--border);
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .qty-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .item-total {
+            color: var(--danger);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .btn-delete {
+            color: #cbd5e0;
+            font-size: 18px;
+            transition: 0.2s;
+        }
+
+        .btn-delete:hover {
+            color: var(--danger);
+        }
+
+        .cart-summary {
+            background: #f8fafc;
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 40px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 25px;
+        }
+
+        .total-row span {
+            color: var(--danger);
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        /* Thông tin nhận hàng */
+        .customer-info-box {
+            background: white !important;
+            border: 1px dashed var(--accent) !important;
+        }
+
+        .btn-checkout-final {
+            background: var(--accent) !important;
+            transition: 0.3s !important;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-checkout-final:hover {
+            transform: translateY(-3px);
+            filter: brightness(1.1);
+        }
+
+        /* Footer Socials */
+        .social-icons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .social-icons a {
+            width: 35px;
+            height: 35px;
+            background: #334155;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .social-icons a.fb:hover { background: #1877f2; }
+        .social-icons a.yt:hover { background: #ff0000; }
+        .social-icons a.tk:hover { background: #000000; }
+    </style>
+</head>
+<body>
+
+<header class="main-header">
+    <div class="header-container container">
+        <div class="logo-area">
+            <h1><a th:href="@{/}"><i class="fas fa-mobile-alt"></i> Mobile City</a></h1>
+        </div>
+        <nav class="main-nav">
+            <a th:href="@{/}" class="nav-link"><i class="fas fa-home"></i> Trang chủ</a>
+            <a th:href="@{/products}" class="nav-link"><i class="fas fa-box"></i> Sản phẩm</a>
+            <a th:href="@{/cart}" class="nav-link active"><i class="fas fa-shopping-cart"></i> Giỏ hàng</a>
+
+            <th:block th:if="${session.USER_SESSION == null}">
+                <a th:href="@{/user/login}" class="nav-link">Đăng nhập</a>
+            </th:block>
+            <th:block th:if="${session.USER_SESSION != null}">
+                <span class="nav-link" style="color:#f6ad55; font-weight: 600;">
+                    <i class="fas fa-user-circle"></i> <span th:text="${session.USER_SESSION.hoTen}"></span>
+                </span>
+                <a th:href="@{/user/logout}" class="nav-link" style="color:var(--danger);">[Thoát]</a>
+            </th:block>
+        </nav>
+    </div>
+</header>
+
+<div class="container">
+    <div class="cart-container">
+        <h1 class="page-title"><i class="fas fa-shopping-basket"></i> Giỏ hàng của bạn</h1>
+
+        <div th:if="${items == null or items.isEmpty()}" style="text-align:center; padding:60px 0;">
+            <img src="https://cdn-icons-png.flaticon.com/512/11329/11329060.png" style="width: 150px; opacity: 0.5; margin-bottom: 20px;">
+            <h3 style="color: #64748b;">Giỏ hàng của bạn đang trống</h3>
+            <p style="margin-bottom: 25px; color: #94a3b8;">Hãy chọn cho mình những sản phẩm ưng ý nhất nhé!</p>
+            <a th:href="@{/}" class="btn-submit" style="text-decoration: none; display: inline-block;">Quay lại mua sắm</a>
+        </div>
+
+        <div th:if="${items != null and !items.isEmpty()}">
+            <table class="cart-table">
+                <thead>
+                <tr>
+                    <th width="40%">Sản phẩm</th>
+                    <th width="15%">Đơn giá</th>
+                    <th width="20%" style="text-align:center">Số lượng</th>
+                    <th width="15%">Thành tiền</th>
+                    <th width="10%" style="text-align:center">Xóa</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="sp : ${items}">
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <img th:src="@{'/uploads/' + ${sp.hinhAnh}}" onerror="this.src='https://via.placeholder.com/60x60'" style="width: 60px; height: 60px; object-fit: contain; border-radius: 8px; border: 1px solid #edf2f7;">
+                            <strong class="product-name" th:text="${sp.tenSP}" style="color: var(--primary);"></strong>
+                        </div>
+                    </td>
+                    <td th:text="${#numbers.formatInteger(sp.gia, 0, 'COMMA')} + '₫'"></td>
+                    <td>
+                        <form th:action="@{/cart/update/{id}(id=${sp.maSP})}" method="post" class="quantity-control" style="margin: 0 auto;">
+                            <button type="submit" name="action" value="decrease" class="qty-btn">-</button>
+                            <span style="font-weight:700; min-width: 30px; text-align: center;" th:text="${cartMap.get(sp.maSP)}"></span>
+                            <button type="submit" name="action" value="increase" class="qty-btn">+</button>
+                        </form>
+                    </td>
+                    <td class="item-total" th:text="${#numbers.formatInteger(sp.gia * cartMap.get(sp.maSP), 0, 'COMMA')} + '₫'"></td>
+                    <td style="text-align:center">
+                        <a th:href="@{/cart/remove/{id}(id=${sp.maSP})}" class="btn-delete"
+                           onclick="return confirm('Xóa sản phẩm này khỏi giỏ hàng?')"><i class="fas fa-trash-alt"></i></a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="cart-summary">
+                <div class="total-row">
+                    Tổng tiền thanh toán: <span th:text="${#numbers.formatInteger(total, 0, 'COMMA')} + '₫'"></span>
+                </div>
+
+                <div class="customer-info-box" th:if="${session.USER_SESSION != null}"
+                     style="background: #fff; padding: 25px; border-radius: 12px; margin-top: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                    <h3 style="margin-bottom:20px; color:var(--primary); border-bottom:1px solid #edf2f7; padding-bottom:15px; font-size: 18px;">
+                        <i class="fas fa-truck-moving" style="color: var(--accent);"></i> THÔNG TIN NHẬN HÀNG
+                    </h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 15px;">
+                        <p><strong><i class="fas fa-user"></i> Người nhận:</strong> <span th:text="${session.USER_SESSION.hoTen}"></span></p>
+                        <p><strong><i class="fas fa-phone"></i> Điện thoại:</strong> <span th:text="${session.USER_SESSION.sdt}"></span></p>
+                        <p style="grid-column: span 2;"><strong><i class="fas fa-map-marker-alt"></i> Địa chỉ:</strong>
+                            <span th:text="${session.USER_SESSION.diaChi ?: 'Vui lòng cập nhật địa chỉ trong hồ sơ'}" style="color: #64748b;"></span>
+                        </p>
+                    </div>
+
+                    <form th:action="@{/checkout}" method="post" style="margin-top: 30px;">
+                        <input type="hidden" name="customerId" th:value="${session.USER_SESSION.maKH}">
+                        <button type="submit" class="btn-checkout-final"
+                                style="background: var(--accent); color: white; padding: 18px; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; width: 100%;">
+                            <i class="fas fa-check-circle"></i> XÁC NHẬN ĐẶT HÀNG NGAY
+                        </button>
+                    </form>
+                    <p style="text-align: center; font-size: 13px; color: #94a3b8; margin-top: 15px;">(Kiểm tra kỹ thông tin trước khi đặt hàng)</p>
+                </div>
+
+                <div th:if="${session.USER_SESSION == null}" style="margin-top:20px; text-align:center; padding: 30px; background: #fff5f5; border: 1px solid #feb2b2; border-radius: 12px;">
+                    <p style="color:var(--danger); font-weight: 700; font-size: 1.1rem; margin-bottom: 15px;">Bạn cần đăng nhập để đặt hàng!</p>
+                    <a th:href="@{/user/login}" class="btn-submit" style="display:inline-block; text-decoration:none;">Đăng nhập để tiếp tục</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="main-footer" style="background: var(--primary); color: #94a3b8; padding: 60px 0 30px; margin-top: 80px;">
+    <div class="container">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; text-align: left;">
+            <div>
+                <h4 style="color: white; margin-bottom: 20px;">Mobile City</h4>
+                <p style="font-size: 14px; line-height: 1.6;">Hệ thống bán lẻ điện thoại, phụ kiện chính hãng giá tốt nhất. Uy tín tạo nên niềm tin.</p>
+                <div class="social-icons" style="justify-content: flex-start;">
+                    <a href="#" class="fb"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="yt"><i class="fab fa-youtube"></i></a>
+                    <a href="#" class="tk"><i class="fab fa-tiktok"></i></a>
+                </div>
+            </div>
+            <div>
+                <h4 style="color: white; margin-bottom: 20px;">Liên hệ</h4>
+                <p style="font-size: 14px;"><i class="fas fa-phone"></i> Hotline: 1900 6601</p>
+                <p style="font-size: 14px;"><i class="fas fa-envelope"></i> contact@mobilecity.vn</p>
+                <p style="font-size: 14px;"><i class="fas fa-map-marker-alt"></i> 123 Cầu Giấy, Hà Nội</p>
+            </div>
+            <div>
+                <h4 style="color: white; margin-bottom: 20px;">Hỗ trợ</h4>
+                <p style="font-size: 14px;">Chính sách bảo hành</p>
+                <p style="font-size: 14px;">Chính sách đổi trả</p>
+                <p style="font-size: 14px;">Giao hàng tận nơi</p>
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 50px; padding-top: 20px; border-top: 1px solid #334155;">
+            <p style="font-size: 13px;">© 2025 Mobile City - Website bán điện thoại chính hãng</p>
+        </div>
+    </div>
+</footer>
+
 </body>
 </html>
